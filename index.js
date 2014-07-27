@@ -93,10 +93,27 @@ memory.all = function( cb ) {
 }
 
 
-memory.find = function( id, cb ) {
-  if (!cache[id] && !store[id]) return cb( 'Not found' )
+/**
+  Retrieve record/s
 
-  var _ref = cache[id] || store[id]
+  @param {QueryObject} qo
+  @param {Function} cb
 
-  if (cb) cb( null, _ref )
+  @private
+*/
+
+memory.find = function( qo, cb ) {
+  var found = [];
+
+  // Find MANY
+  if (!qo.identifiers || !qo.identifiers.length) {
+
+    // @todo Handle conditions
+
+    if (store[ qo.resource ]) found = store[ qo.resource ].slice(0,100);
+    return cb( null, found );
+  }
+  else {
+   return cb('FindById Not implemented');
+  }
 }

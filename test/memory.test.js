@@ -42,6 +42,24 @@ describe('Memory Adapter', function () {
     });
   });
 
+  it('can find/list many entries', function (done) {
+    var qo = {action:'find', resource:'bands'};
+    memory.exec( qo, function (e,r) {
+      // This value is based on the STATE of previous tests. Not a great idea.
+      // Can't be fucked making this stateless. @todo
+      expect( r ).to.have.length.above( 1 );
+      done();
+    });
+  });
+
+  it('returns an empty list if no records found', function (done) {
+    var qo = {action:'find', resource:'slime'};
+    memory.exec( qo, function (e,r) {
+      expect( r ).to.have.length( 0 );
+      done();
+    });
+  });
+
   it('can fetch/read a single entry');
 
   it('can find/list many entries');
