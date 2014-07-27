@@ -26,10 +26,11 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('newly created entities have generated ids', function (done) {
+  it('newly created entities have generated <resource>.ids', function (done) {
     var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]}
     memory.exec( qo, function (e,r) {
       expect( r ).to.include.keys( 'id' );
+      expect( r.id.split('.')[0] ).to.equal('bands');
       done();
     });
   });
