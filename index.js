@@ -40,9 +40,10 @@ memory.create = function( qo, cb ) {
     if (record.id) throw new Error('Fuck you, id exists');
       // Generate ID
     var id = Math.random().toString(36).substr(2);
-    record.id = qo.resource+'.'+id;
+    record.id = id;
 
-    store[ id ] = record;
+    if (!store[ qo.resource ]) store[ qo.resource ] = [];
+    store[ qo.resource ].push( record );
     created.push( record );
   }
 
