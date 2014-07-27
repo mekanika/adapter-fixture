@@ -1,37 +1,54 @@
 
+// The core module
+var memory = {};
 
-// var adapter = require('mekanika-adapter');
-var memory = {}; //adapter('memory');
+/**
+  Expose module
+*/
 
-var cache = {};
+module.exports = exports = memory;
+
+
 var store = {};
 
 
-// var memory = adapter('memory')
+
 
 memory.exec = function( query, cb ) {
-  console.log('a:memory:executing!', query)
 
-  var res = []
+  if (!cb) throw new Error('Missing callback');
 
   if (memory[ query.action ]) return memory[ query.action ]( query, cb );
-  else if (cb) cb( null, res );
+  else cb && cb( 'No matching action' );
 }
 
 
 
-// Creates a NEW record
-memory.create = function( record, cb ) {
-  // Generate ID
-  var _id = Math.random().toString(36).substr(2)
-  record._id = _id
+/**
+  Creates new record/s
 
-  store[ _id ] = record
-  cache[ _id ] = record
+  @param {QueryObject} qo
+  @param {Function} cb
 
-  this.emit( 'memory.create', record )
+  @private
+*/
 
-  if (cb) cb( null, record )
+memory.create = function( qo, cb ) {
+  var created = [];
+
+  var insert = function (record) {
+    if (record.id) throw new Error('Fuck you, id exists');
+      // Generate ID
+    var id = Math.random().toString(36).substr(2);
+    record.id = id;
+
+    store[ id ] = record;
+    created.push( record );
+  }
+
+  qo.content.forEach( insert );
+
+  if (cb) cb( null, created.length > 1 ? created : created[0] );
 }
 
 
