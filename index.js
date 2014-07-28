@@ -20,6 +20,26 @@ memory.exec = function( query, cb ) {
 
   if (memory[ query.action ]) return memory[ query.action ]( query, cb );
   else cb && cb( 'No matching action' );
+};
+
+
+/**
+  Internal helper: finds a record from table `resource` by `id`
+
+  @param {String} resource
+  @param {String} id
+
+  @private
+*/
+
+function _find( resource, id ) {
+  var _ret;
+
+  store[ resource ].forEach( function (rec, i) {
+    if (rec.id === id) _ret = {index:i, record:rec};
+  });
+
+  return _ret;
 }
 
 
@@ -53,15 +73,29 @@ memory.create = function( qo, cb ) {
 }
 
 
-// Full save of record
-memory.save = function( id, record, cb ) {
-  if (!store[id]) return cb( 'Not found' )
+/**
+  Save (PUT) a complete record/s
 
-  store[ id ] = record
-  cache[ id ] = record
+  @param {QueryObject} qo
+  @param {Function} cb
 
-  if (cb) cb( null, record )
-}
+  @private
+*/
+
+memory.save = function( qo, cb ) {
+
+  qo.content.forEach( function (update) {
+    if (!update.id) cb('Must provide records with `id` set');
+
+    var found = _find( qo.resource, update.id );
+    // @note Could update this to support updateOrCreate
+    if (!found) cb('Cannot find record to update: '+qo.resource+'.'+update.id);
+
+    store[ qo.resource ][ found.index ] = update;
+  });
+
+  return cb( null, qo.content );
+};
 
 
 memory.update = function( id, fields, cb ) {

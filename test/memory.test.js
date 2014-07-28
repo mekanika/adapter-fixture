@@ -75,7 +75,19 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('can save (idempotent PUT) a complete entry');
+  it('can save (idempotent PUT) a complete entry', function (done) {
+    var qo = {action:'create', resource:'bands', content:[{name:'Tantric', albumbs:4}]};
+    memory.exec( qo, function (e,r) {
+      var updated = r;
+      updated.albums = 5;
+      qo = {action:'save', resource:'bands', content:[updated]};
+      memory.exec( qo, function (e,r) {
+        expect( e ).to.not.exist;
+        expect( r[0].albums ).to.equal( updated.albums );
+        done();
+      });
+    });
+  });
 
   it('can update (partial PATCH) an entry');
 
