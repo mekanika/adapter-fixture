@@ -124,6 +124,30 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('can delete an entry');
+  it('.delete callsback error if no identifiers provided', function (done) {
+    var qo = {action:'remove', resource:'bands'};
+    memory.exec( qo, function (e,r) {
+      expect( e ).to.match( /identifiers/ig );
+      done();
+    });
+  });
+
+  it('can delete an entry', function (done) {
+    var qo = {action:'create', resource:'bands', content:[{name:'Starfucker'}]};
+    var id;
+    memory.exec( qo, function (e,r) {
+      id = r.id;
+      qo = {action:'remove', resource:'bands', identifiers:[id]};
+      memory.exec( qo, function (e,r) {
+        expect( e ).to.not.exist;
+        qo = {action:'find', resource:'bands', identifiers:[id]};
+        memory.exec( qo, function (e,r) {
+          expect( e ).to.not.exist;
+          expect( r ).to.have.length( 0 );
+          done();
+        });
+      });
+    });
+  });
 
 });

@@ -130,8 +130,22 @@ memory.update = function( qo, cb ) {
 };
 
 
+/**
+  Deletes a record/s
+*/
 
+memory.remove = function( qo, cb ) {
 
+  if (!qo.identifiers || !qo.identifiers.length)
+    return cb( 'Must provide ids to remove in Query .identifiers' );
+
+  qo.identifiers.forEach( function(id) {
+    var found = _find( qo.resource, id );
+    if (found) store[ qo.resource ].splice( found.index, 1 );
+  });
+
+  return cb( null, true );
+};
 
 
 /**
