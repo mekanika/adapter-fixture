@@ -68,12 +68,12 @@ memory.create = function( qo, cb ) {
     if (!store[ qo.resource ]) store[ qo.resource ] = [];
     store[ qo.resource ].push( record );
     created.push( record );
-  }
+  };
 
   qo.content.forEach( insert );
 
   if (cb) cb( null, created.length > 1 ? created : created[0] );
-}
+};
 
 
 /**
@@ -175,4 +175,4 @@ memory.find = function( qo, cb ) {
     });
     return cb( null, found );
   }
-}
+};

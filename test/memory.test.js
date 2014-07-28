@@ -29,7 +29,7 @@ describe('Memory Adapter', function () {
   });
 
   it('can create new entries', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]}
+    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]};
     memory.exec( qo, function (e,r) {
       expect( e ).to.not.exist;
       expect( r ).to.exist;
@@ -39,7 +39,7 @@ describe('Memory Adapter', function () {
   });
 
   it('newly created entities have generated ids', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]}
+    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]};
     memory.exec( qo, function (e,r) {
       expect( r ).to.include.keys( 'id' );
       done();
@@ -47,7 +47,7 @@ describe('Memory Adapter', function () {
   });
 
   it('can create multiple new entries', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Woo'}, {name:'Um'}]}
+    var qo = {action:'create', resource:'bands', content:[{name:'Woo'}, {name:'Um'}]};
     memory.exec( qo, function (e,r) {
       expect( r ).to.have.length( 2 );
       done();
