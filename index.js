@@ -124,10 +124,6 @@ memory.destroy = function( id, cb ) {
 }
 
 
-// Fetch all
-memory.all = function( cb ) {
-  if (cb) cb( null, store )
-}
 
 
 /**
