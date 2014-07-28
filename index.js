@@ -101,27 +101,35 @@ memory.save = function( qo, cb ) {
 };
 
 
-memory.update = function( id, fields, cb ) {
-  if (!store[id]) return cb( 'Not found' )
+/**
+  Update (partial PATCH) a record/s
 
-  for (var prop in fields)
-    if (fields.hasOwnProperty( prop )) store[id][ prop ] = fields[ prop ]
+  @param {QueryObject} qo
+  @param {Function} cb
 
-  cache[id] = store[id]
+  @private
+*/
 
-  cb( null, cache[id] )
-}
+memory.update = function( qo, cb ) {
+
+  if (!qo.content || !qo.content.length)
+    return cb('Must provide updates in Query .content');
+
+  if (!qo.identifiers || !qo.identifiers.length)
+    return cb('Must provide ids to update in Query .identifiers field');
+
+  // This implementation ONLY updates the first update request
+  var found = _find( qo.resource, qo.identifiers[0] );
+  if (!found) return cb('Record not found to update');
+
+  for (var key in qo.content[0]) {
+    store[ qo.resource ][ found.index ][ key ] = qo.content[0][ key ];
+  }
+
+  return cb( null, store[ qo.resource ][ found.index ] );
+};
 
 
-memory.destroy = function( id, cb ) {
-  var _ref = store[id]
-  if (!_ref) return cb( 'Not found' )
-
-  delete store[id]
-  delete cache[id]
-
-  if (cb) cb( null, _ref )
-}
 
 
 

@@ -101,7 +101,28 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('can update (partial PATCH) an entry');
+  it('.update errors if not provided content or identifiers', function (done) {
+    memory.exec( {action:'update', resource:'!', identifiers:[1]}, function (e,r) {
+      expect( e ).to.match( /content/ig );
+
+      memory.exec( {action:'update', resource:'!', content:[1]}, function (e,r) {
+        expect( e ).to.match( /identifiers/ig );
+        done();
+      });
+    });
+  });
+
+  it('can update (partial PATCH) an entry', function (done) {
+    var qo = {action:'create', resource:'bands', content:[{name:'SDRE', albums:3}]};
+    memory.exec( qo, function (e,r) {
+      qo = {action:'update', resource:'bands', identifiers:[r.id], content:[{albums:4}]};
+      memory.exec( qo, function (e,r) {
+        expect( e ).to.not.exist;
+        expect( r.albums ).to.equal( 4 );
+        done();
+      });
+    });
+  });
 
   it('can delete an entry');
 
