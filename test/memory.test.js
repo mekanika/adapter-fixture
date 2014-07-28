@@ -16,6 +16,18 @@ describe('Memory Adapter', function () {
     }
   });
 
+  it('callbacks error if invalid query', function (done) {
+    var qo = {resource:'x'};
+    memory.exec( qo, function (e,r) {
+      expect( e ).to.match( /invalid query/ig );
+      qo = {action:'x'};
+      memory.exec( qo, function (e,r) {
+        expect( e ).to.match( /invalid query/ig );
+        done();
+      });
+    });
+  });
+
   it('can create new entries', function (done) {
     var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]}
     memory.exec( qo, function (e,r) {

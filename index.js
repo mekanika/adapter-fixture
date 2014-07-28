@@ -18,6 +18,9 @@ memory.exec = function( query, cb ) {
 
   if (!cb) throw new Error('Missing callback');
 
+  if (!query.action || !query.resource)
+    return cb('Invalid query: must provide `action` and `resource`');
+
   if (memory[ query.action ]) return memory[ query.action ]( query, cb );
   else cb && cb( 'No matching action' );
 };
