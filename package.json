@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/mekanika/adapter-memory.git"
   },
-  "license": "Commercial",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/mekanika/adapter-memory/issues"
   },
