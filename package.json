@@ -1,6 +1,6 @@
 {
   "name": "mekanika-adapter-memory",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Mekanika in-memory adapter",
   "main": "index.js",
   "scripts": {
