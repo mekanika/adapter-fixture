@@ -60,9 +60,20 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('can fetch/read a single entry');
+  it('can fetch/read a single entry', function (done) {
+    var qo = {action:'create', resource:'bands', content:[{name:'DOTN'}]};
+    memory.exec( qo, function (e,r) {
+      expect( r.id ).to.exist;
+      qo = {action:'find', resource:'bands', identifiers:[r.id]};
+      memory.exec( qo, function (e,r) {
+        expect( e ).to.not.exist;
+        expect( r ).to.have.length( 1 );
+        expect( r[0].name ).to.equal( 'DOTN' );
+        done();
+      });
 
-  it('can find/list many entries');
+    });
+  });
 
   it('can save (idempotent PUT) a complete entry');
 

@@ -114,6 +114,11 @@ memory.find = function( qo, cb ) {
     return cb( null, found );
   }
   else {
-   return cb('FindById Not implemented');
+    qo.identifiers.forEach( function(id) {
+      store[ qo.resource ].forEach( function (rec) {
+        if (rec.id === id) found.push( rec );
+      });
+    });
+    return cb( null, found );
   }
 }
