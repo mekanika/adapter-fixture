@@ -149,9 +149,8 @@ memory.find = function( qo, cb ) {
   }
   else {
     qo.identifiers.forEach( function(id) {
-      store[ qo.resource ].forEach( function (rec) {
-        if (rec.id === id) found.push( rec );
-      });
+      var rec = _find( qo.resource, id );
+      if (rec) found.push( rec.record );
     });
     return cb( null, found );
   }
