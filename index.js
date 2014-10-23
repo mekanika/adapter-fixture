@@ -6,7 +6,6 @@ var memory = {};
   Expose module
 */
 
-module.exports = exports = memory;
 
 
 var store = {};
@@ -176,3 +175,20 @@ memory.find = function( qo, cb ) {
     return cb( null, found );
   }
 };
+
+
+/**
+  Universal Module exporter (supports CommonJS)
+*/
+
+(function (name, root, factory) {
+
+  if ('function' === typeof define && define.amd) define( factory );
+  else if ('undefined' !== typeof module && module.exports) module.exports = factory();
+  else root[ name ] = factory();
+
+})('adapter-memory', this, function () {
+
+  return memory;
+
+});
