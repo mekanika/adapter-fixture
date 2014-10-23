@@ -1,17 +1,26 @@
 
-// The core module
-var memory = {};
-
 /**
-  Expose module
+  The core module
 */
 
+var memory = {};
 
+
+/**
+  Internal data storage
+*/
 
 var store = {};
 
 
+/**
+  Primary adapter
 
+  @param {Query} query
+  @param {Function} cb Callback passed (error, results)
+
+  @public
+*/
 
 memory.exec = function( query, cb ) {
 
