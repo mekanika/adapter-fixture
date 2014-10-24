@@ -8,9 +8,10 @@ var memory = {};
 
 /**
   Internal data storage
+  Available as `memory._store` for manual override
 */
 
-var store = {};
+var store = memory._store = {};
 
 
 /**
