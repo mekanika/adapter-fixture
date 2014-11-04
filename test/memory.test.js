@@ -29,7 +29,7 @@ describe('Memory Adapter', function () {
   });
 
   it('can create new entries', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'Splergh'}]};
     memory.exec( qo, function (e,r) {
       expect( e ).to.not.exist;
       expect( r ).to.exist;
@@ -39,7 +39,7 @@ describe('Memory Adapter', function () {
   });
 
   it('newly created entities have generated ids', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Splergh'}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'Splergh'}]};
     memory.exec( qo, function (e,r) {
       expect( r ).to.include.keys( 'id' );
       done();
@@ -47,7 +47,7 @@ describe('Memory Adapter', function () {
   });
 
   it('can create multiple new entries', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Woo'}, {name:'Um'}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'Woo'}, {name:'Um'}]};
     memory.exec( qo, function (e,r) {
       expect( r ).to.have.length( 2 );
       done();
@@ -73,10 +73,10 @@ describe('Memory Adapter', function () {
   });
 
   it('can fetch/read a single entry', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'DOTN'}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'DOTN'}]};
     memory.exec( qo, function (e,r) {
       expect( r.id ).to.exist;
-      qo = {action:'find', resource:'bands', identifiers:[r.id]};
+      qo = {action:'find', resource:'bands', ids:[r.id]};
       memory.exec( qo, function (e,r) {
         expect( e ).to.not.exist;
         expect( r ).to.have.length( 1 );
@@ -88,11 +88,11 @@ describe('Memory Adapter', function () {
   });
 
   it('can save (idempotent PUT) a complete entry', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Tantric', albumbs:4}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'Tantric', albumbs:4}]};
     memory.exec( qo, function (e,r) {
       var updated = r;
       updated.albums = 5;
-      qo = {action:'save', resource:'bands', content:[updated]};
+      qo = {action:'save', resource:'bands', body:[updated]};
       memory.exec( qo, function (e,r) {
         expect( e ).to.not.exist;
         expect( r[0].albums ).to.equal( updated.albums );
@@ -101,21 +101,21 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('.update errors if not provided content or identifiers', function (done) {
-    memory.exec( {action:'update', resource:'!', identifiers:[1]}, function (e,r) {
-      expect( e ).to.match( /content/ig );
+  it('.update errors if not provided body or ids', function (done) {
+    memory.exec( {action:'update', resource:'!', ids:[1]}, function (e,r) {
+      expect( e ).to.match( /body/ig );
 
-      memory.exec( {action:'update', resource:'!', content:[1]}, function (e,r) {
-        expect( e ).to.match( /identifiers/ig );
+      memory.exec( {action:'update', resource:'!', body:[1]}, function (e,r) {
+        expect( e ).to.match( /ids/ig );
         done();
       });
     });
   });
 
   it('can update (partial PATCH) an entry', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'SDRE', albums:3}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'SDRE', albums:3}]};
     memory.exec( qo, function (e,r) {
-      qo = {action:'update', resource:'bands', identifiers:[r.id], content:[{albums:4}]};
+      qo = {action:'update', resource:'bands', ids:[r.id], body:[{albums:4}]};
       memory.exec( qo, function (e,r) {
         expect( e ).to.not.exist;
         expect( r.albums ).to.equal( 4 );
@@ -124,23 +124,23 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('.delete callsback error if no identifiers provided', function (done) {
+  it('.delete callsback error if no ids provided', function (done) {
     var qo = {action:'remove', resource:'bands'};
     memory.exec( qo, function (e,r) {
-      expect( e ).to.match( /identifiers/ig );
+      expect( e ).to.match( /ids/ig );
       done();
     });
   });
 
   it('can delete an entry', function (done) {
-    var qo = {action:'create', resource:'bands', content:[{name:'Starfucker'}]};
+    var qo = {action:'create', resource:'bands', body:[{name:'Starfucker'}]};
     var id;
     memory.exec( qo, function (e,r) {
       id = r.id;
-      qo = {action:'remove', resource:'bands', identifiers:[id]};
+      qo = {action:'remove', resource:'bands', ids:[id]};
       memory.exec( qo, function (e,r) {
         expect( e ).to.not.exist;
-        qo = {action:'find', resource:'bands', identifiers:[id]};
+        qo = {action:'find', resource:'bands', ids:[id]};
         memory.exec( qo, function (e,r) {
           expect( e ).to.not.exist;
           expect( r ).to.have.length( 0 );
