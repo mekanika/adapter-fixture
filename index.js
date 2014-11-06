@@ -196,6 +196,31 @@
         }
       }
 
+      // Apply updates
+      if (qe.update) {
+        qe.update.forEach( function (up) {
+          var field = _lastkey(up);
+          var op = _lastkey( up[field] );
+          var value = up[field][op];
+
+          switch (op) {
+            case 'inc':
+              dbrec[ field ] += value;
+              break;
+            case 'push':
+              if (value instanceof Array)
+                debrec[field] = debrec[field].concat( value );
+              else dbrec[field].push( value );
+              break;
+            case 'pull':
+              value.forEach( function(pull) {
+                var pos = dbrec[field].indexOf( pull );
+                if (pos >= 0) dbrec[field].splice(pos, 1);
+              });
+              break;
+          }
+        });
+      }
     });
 
 
