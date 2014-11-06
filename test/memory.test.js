@@ -17,11 +17,11 @@ describe('Memory Adapter', function () {
   });
 
   it('callbacks error if invalid query', function (done) {
-    var qo = {resource:'x'};
-    memory.exec( qo, function (e,r) {
+    var qe = {on:'x'};
+    memory.exec( qe, function (e,r) {
       expect( e ).to.match( /invalid query/ig );
-      qo = {action:'x'};
-      memory.exec( qo, function (e,r) {
+      qe = {do:'x'};
+      memory.exec( qe, function (e,r) {
         expect( e ).to.match( /invalid query/ig );
         done();
       });
@@ -29,8 +29,8 @@ describe('Memory Adapter', function () {
   });
 
   it('can create new entries', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'Splergh'}]};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'create', on:'bands', body:[{name:'Splergh'}]};
+    memory.exec( qe, function (e,r) {
       expect( e ).to.not.exist;
       expect( r ).to.exist;
       expect( r ).to.include.keys( 'name' );
@@ -39,24 +39,24 @@ describe('Memory Adapter', function () {
   });
 
   it('newly created entities have generated ids', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'Splergh'}]};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'create', on:'bands', body:[{name:'Splergh'}]};
+    memory.exec( qe, function (e,r) {
       expect( r ).to.include.keys( 'id' );
       done();
     });
   });
 
   it('can create multiple new entries', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'Woo'}, {name:'Um'}]};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'create', on:'bands', body:[{name:'Woo'}, {name:'Um'}]};
+    memory.exec( qe, function (e,r) {
       expect( r ).to.have.length( 2 );
       done();
     });
   });
 
   it('can find/list many entries', function (done) {
-    var qo = {action:'find', resource:'bands'};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'find', on:'bands'};
+    memory.exec( qe, function (e,r) {
       // This value is based on the STATE of previous tests. Not a great idea.
       // Can't be fucked making this stateless. @todo
       expect( r ).to.have.length.above( 1 );
@@ -65,19 +65,19 @@ describe('Memory Adapter', function () {
   });
 
   it('returns an empty list if no records found', function (done) {
-    var qo = {action:'find', resource:'slime'};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'find', on:'slime'};
+    memory.exec( qe, function (e,r) {
       expect( r ).to.have.length( 0 );
       done();
     });
   });
 
   it('can fetch/read a single entry', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'DOTN'}]};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'create', on:'bands', body:[{name:'DOTN'}]};
+    memory.exec( qe, function (e,r) {
       expect( r.id ).to.exist;
-      qo = {action:'find', resource:'bands', ids:[r.id]};
-      memory.exec( qo, function (e,r) {
+      qe = {do:'find', on:'bands', ids:[r.id]};
+      memory.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
         expect( r ).to.have.length( 1 );
         expect( r[0].name ).to.equal( 'DOTN' );
@@ -87,63 +87,45 @@ describe('Memory Adapter', function () {
     });
   });
 
-  it('can save (idempotent PUT) a complete entry', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'Tantric', albumbs:4}]};
-    memory.exec( qo, function (e,r) {
-      var updated = r;
-      updated.albums = 5;
-      qo = {action:'save', resource:'bands', body:[updated]};
-      memory.exec( qo, function (e,r) {
-        expect( e ).to.not.exist;
-        expect( r[0].albums ).to.equal( updated.albums );
-        done();
-      });
-    });
-  });
-
-  it('.update errors if not provided body or ids', function (done) {
-    memory.exec( {action:'update', resource:'!', ids:[1]}, function (e,r) {
-      expect( e ).to.match( /body/ig );
-
-      memory.exec( {action:'update', resource:'!', body:[1]}, function (e,r) {
-        expect( e ).to.match( /ids/ig );
-        done();
-      });
+  it('.update errors if not provided ids', function (done) {
+    memory.exec( {do:'update', on:'!', body:[1]}, function (e,r) {
+      expect( e ).to.match( /ids/ig );
+      done();
     });
   });
 
   it('can update (partial PATCH) an entry', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'SDRE', albums:3}]};
-    memory.exec( qo, function (e,r) {
-      qo = {action:'update', resource:'bands', ids:[r.id], body:[{albums:4}]};
-      memory.exec( qo, function (e,r) {
+    var qe = {do:'create', on:'bands', body:[{name:'SDRE', albums:3}]};
+    memory.exec( qe, function (e,r) {
+      qe = {do:'update', on:'bands', ids:[r.id], body:[{albums:4}]};
+      memory.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
-        expect( r.albums ).to.equal( 4 );
+        expect( r[0].albums ).to.equal( 4 );
         done();
       });
     });
   });
 
   it('.delete callsback error if no ids provided', function (done) {
-    var qo = {action:'remove', resource:'bands'};
-    memory.exec( qo, function (e,r) {
+    var qe = {do:'remove', on:'bands'};
+    memory.exec( qe, function (e,r) {
       expect( e ).to.match( /ids/ig );
       done();
     });
   });
 
   it('can delete an entry', function (done) {
-    var qo = {action:'create', resource:'bands', body:[{name:'Starfucker'}]};
+    var qe = {do:'create', on:'bands', body:[{name:'Starfucker'}]};
     var id;
-    memory.exec( qo, function (e,r) {
+    memory.exec( qe, function (e,r) {
       id = r.id;
-      qo = {action:'remove', resource:'bands', ids:[id]};
-      memory.exec( qo, function (e,r) {
+      qe = {do:'remove', on:'bands', ids:[id]};
+      memory.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
-        qo = {action:'find', resource:'bands', ids:[id]};
-        memory.exec( qo, function (e,r) {
+        qe = {do:'find', on:'bands', ids:[id]};
+        memory.exec( qe, function (e,rx) {
           expect( e ).to.not.exist;
-          expect( r ).to.have.length( 0 );
+          expect( rx ).to.have.length( 0 );
           done();
         });
       });

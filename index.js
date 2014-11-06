@@ -237,9 +237,9 @@
     if (!qe.ids || !qe.ids.length)
       return cb( 'Must provide ids to remove in Query .ids' );
 
-    qe.ids.forEach( function(id) {
-      var found = _find( qe.on, id );
-      if (found) memory._store[ qe.on ].splice( found.index, 1 );
+    var found = _find( qe.on, qe.ids );
+    found.forEach( function(res) {
+      memory._store[ qe.on ].splice( res.index, 1 );
     });
 
     return cb( null, true );
