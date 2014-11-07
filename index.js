@@ -9,22 +9,22 @@
   else if ('undefined' !== typeof module && module.exports) module.exports = factory();
   else root[ name ] = factory();
 
-})('adapterMemory', this, function () {
+})('adapterFixture', this, function () {
 
 
   /**
     The core module
   */
 
-  var memory = {};
+  var fixture = {};
 
 
   /**
     Internal data storage
-    Available as `memory._store` for manual override
+    Available as `fixture._store` for manual override
   */
 
-  memory._store = {};
+  fixture._store = {};
 
 
   /**
@@ -36,7 +36,7 @@
     @public
   */
 
-  memory.exec = function( query, cb ) {
+  fixture.exec = function( query, cb ) {
     // console.log('Memory:', query.toObject ? query.toObject() : query );
 
     if (!cb) throw new Error('Missing callback');
@@ -44,7 +44,7 @@
     if (!query.do || !query.on)
       return cb('Invalid query: must provide `action` and `resource`');
 
-    if (memory[ query.do ]) return memory[ query.do ]( query, cb );
+    if (fixture[ query.do ]) return fixture[ query.do ]( query, cb );
     else cb && cb( 'No matching action' );
   };
 
@@ -64,7 +64,7 @@
     if (!(ids instanceof Array)) ids = [ids];
 
     ids.forEach( function (id) {
-      memory._store[ resource ].forEach( function (rec, i) {
+      fixture._store[ resource ].forEach( function (rec, i) {
         if (rec.id === id) _ret.push({index:i, record:rec});
       });
     });
@@ -144,7 +144,7 @@
     @private
   */
 
-  memory.create = function( qe, cb ) {
+  fixture.create = function( qe, cb ) {
     var created = [];
 
     var insert = function (record) {
@@ -153,8 +153,8 @@
       var id = Math.random().toString(36).substr(2);
       record.id = id;
 
-      if (!memory._store[ qe.on ]) memory._store[ qe.on ] = [];
-      memory._store[ qe.on ].push( record );
+      if (!fixture._store[ qe.on ]) fixture._store[ qe.on ] = [];
+      fixture._store[ qe.on ].push( record );
       created.push( record );
     };
 
@@ -173,7 +173,7 @@
     @private
   */
 
-  memory.update = function( qe, cb ) {
+  fixture.update = function( qe, cb ) {
 
     if (!qe.ids || !qe.ids.length)
       return cb('Must provide ids to update in Query .ids field');
@@ -183,7 +183,7 @@
     if (!found) return cb('Record not found to update');
 
 
-    var db = memory._store[ qe.on ];
+    var db = fixture._store[ qe.on ];
 
     found.forEach( function (res) {
 
@@ -232,14 +232,14 @@
     Deletes a record/s
   */
 
-  memory.remove = function( qe, cb ) {
+  fixture.remove = function( qe, cb ) {
 
     if (!qe.ids || !qe.ids.length)
       return cb( 'Must provide ids to remove in Query .ids' );
 
     var found = _find( qe.on, qe.ids );
     found.forEach( function(res) {
-      memory._store[ qe.on ].splice( res.index, 1 );
+      fixture._store[ qe.on ].splice( res.index, 1 );
     });
 
     return cb( null, true );
@@ -255,7 +255,7 @@
     @private
   */
 
-  memory.find = function( qe, cb ) {
+  fixture.find = function( qe, cb ) {
     var found = [];
 
     // Specifically Get by IDs
@@ -265,8 +265,8 @@
       })
     }
     // Otherwise: find MANY
-    else if (memory._store[ qe.on ])
-      found = memory._store[ qe.on ];
+    else if (fixture._store[ qe.on ])
+      found = fixture._store[ qe.on ];
 
     // Clone the results so we're not destroying the DB
     // omfg this is nasty. Serious eye bleeding. Never production.
@@ -295,7 +295,7 @@
 
           var nq = pop.query || {on:key, ids:res[key]};
 
-          memory.find( nq, function (e,r) {
+          fixture.find( nq, function (e,r) {
             if (e) return cb('Died: '+e);
             res[key] = r;
             _chkdone( --_as, cb, found );
@@ -314,6 +314,6 @@
     Export the module
   */
 
-  return memory;
+  return fixture;
 
 });
