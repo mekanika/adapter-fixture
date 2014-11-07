@@ -74,6 +74,76 @@
 
 
   /**
+    Helper: match handler with nesting support
+
+    @param {Array} recs Results array to check
+    @param {Object} mc Match container `{or: [mo, mc...]}`
+
+    @return {Array} Matching results
+  */
+
+  function _match( recs, mc ) {
+
+    var match = function (rec, mo) {
+      var field = _lastkey(mo);
+      var op = _lastkey( mo[field] );
+      var val = mo[field][op];
+
+      // Does the record pass the match object?
+      var hit = false;
+
+      switch (op) {
+        case 'eq': if (rec[field] === val) hit = true; break;
+        case 'neq': if (rec[field] !== val) hit = true; break;
+        case 'in': if (val.indexOf(rec[field]) > -1) hit = true; break;
+        case 'nin': if (val.indexOf(rec[field]) < 0) hit = true; break;
+        case 'gt': if (rec[field] > val) hit = true; break;
+        case 'gte': if (rec[field] >= val) hit = true; break;
+        case 'lt': if (rec[field] < val) hit = true; break;
+        case 'lte': if (rec[field] <= val) hit = true; break;
+        case 'all':
+          var _all = true;
+          val.forEach( function(v) {
+            if (rec.field.indexOf(v) === -1) _all = false;
+          });
+          if (_all) hit = true;
+        break;
+      }
+
+      return hit;
+    }
+
+    function _mc (rec, mos, boolop) {
+      var hits = [];
+
+      mos.forEach( function (mo,i) {
+
+        var op = _lastkey( mo );
+        // Nested match condition
+        if (mo[op] instanceof Array) {
+          hits[i] = _mc( rec, mo[op], op);
+        }
+        hits[i] = match(rec, mo);
+      });
+
+      // Collapse hits to a TRUE or FALSE based on boolops
+      return boolop === 'or'
+        ? hits.indexOf(true) > -1 // OR check
+        : hits.indexOf(false) < 0;
+    }
+
+    var boolop = _lastkey(mc);
+    var matches = [];
+
+    recs.forEach( function (rec) {
+      if (_mc(rec, mc[boolop], boolop)) matches.push(rec);
+    });
+
+    return matches;
+  }
+
+
+  /**
     Helper: Cheap/nasty async checker
     Setup a count, have your code decrement the count when passing to chkdone
   */
@@ -267,6 +337,9 @@
     // Otherwise: find MANY
     else if (fixture._store[ qe.on ])
       found = fixture._store[ qe.on ];
+
+
+    if (qe.match) found = _match( found, qe.match );
 
     // Clone the results so we're not destroying the DB
     // omfg this is nasty. Serious eye bleeding. Never production.
