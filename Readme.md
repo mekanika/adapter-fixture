@@ -8,6 +8,17 @@ This adapter stores, updates and retrieves records from memory. It is **not inte
 
 ## Usage
 
+Pass a _Qe_ and a callback to `adapter.exec(qe, cb)`:
+
+```js
+var adapter = require('mekanika-adapter-fixture');
+
+adapter.exec( {do:'find',on:'users'}, fn );
+// Callback receives (error, results)
+```
+
+## Supported features
+
 All reserved Query `do` actions are supported:
 
 - 'create'
@@ -15,7 +26,9 @@ All reserved Query `do` actions are supported:
 - 'update'
 - 'remove'
 
-Note: There is currently _no support for `.match`_ (WHERE type conditions).
+Supports `.match` and the following match operators:
+
+- eq, neq, in, nin, all, lt, lte, gt, gte
 
 Supports `.populate`:
 
@@ -46,7 +59,7 @@ Supports `.limit`, `.select`, `.offset` result filters:
 }
 ```
 
-Adapter uses `.id` as its identifier field.
+Fixture Adapter uses `.id` as its identifier field.
 
 
 ## License
