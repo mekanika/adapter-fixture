@@ -301,6 +301,35 @@ describe('Fixture Adapter', function () {
   });
 
 
+
+  describe('Select', function () {
+
+    beforeEach(function() {
+      // copy fixture - my new favourite hack copy object method:
+      fixture._store = JSON.parse( JSON.stringify(_FIXTURE) );
+    });
+
+    it('whitelists fields', function (done) {
+      var qe = {on:'supers',do:'find', ids:['1'], select:['handle']};
+      fixture.exec( qe, function (e,r) {
+        expect( r[0] ).to.have.key('handle');
+        expect( r[0] ).to.not.have.key('id');
+        done();
+      });
+    });
+
+    it('blacklists fields', function (done) {
+      var qe = {on:'supers',do:'find', ids:['1'], select:['-handle']};
+      fixture.exec( qe, function (e,r) {
+        expect( r[0] ).to.not.have.key('handle');
+        expect( Object.keys(r[0]) ).to.have.length(4);
+        done();
+      });
+    });
+
+  });
+
+
   describe('Limit', function () {
 
     it('on find', function (done) {
