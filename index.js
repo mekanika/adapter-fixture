@@ -445,18 +445,25 @@
       // Cheap/nasty async: number of searches required
       var _as = found.length * Object.keys(qe.populate).length;
 
-      Object.keys( qe.populate ).forEach( function (key) {
-        var pop = qe.populate[ key ];
+      Object.keys( qe.populate ).forEach( function (field) {
+        var pop = qe.populate[ field ];
 
         // Ugh looking up every record is DUMB
-        found.forEach( function (res) {
-          if (pop.query) pop.query.ids = res[key];
+        found.forEach( function (rec) {
 
-          var nq = pop.query || {on:key, ids:res[key]};
+          var nq = pop.query || {on:field};
+
+          if (pop.key) {
+            // Enables looking up associations by a foreign key match
+            var mo = {};
+            mo[ pop.key ] = {in: rec[field]};
+            nq.match = {and:[mo]}
+          }
+          else nq.ids = rec[field];
 
           fixture.find( nq, function (e,r) {
             if (e) return cb('Died: '+e);
-            res[key] = r;
+            rec[field] = r;
             _chkdone( --_as, cb, found );
           });
         });

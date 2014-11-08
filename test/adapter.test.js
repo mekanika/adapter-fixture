@@ -357,6 +357,19 @@ describe('Fixture Adapter', function () {
         done();
       });
     });
+
+    it('looksup on foreign key', function (done) {
+      var qe = {
+        on:'supers', do:'find', ids:[2],
+        populate:{powers:{key:'power_id'}}
+      };
+
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].powers[0] ).to.have.keys( 'power_id', 'name');
+        done();
+      });
+    });
+
   });
 
 
