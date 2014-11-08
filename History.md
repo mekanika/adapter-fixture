@@ -1,3 +1,17 @@
+0.3.1 - 8 November 2014
+=====
+
+Changed:
+
+- Fixed 'push' update operator
+
+Internal:
+
+- Added update operator tests
+- Added offset by number test
+
+
+
 0.3.0 - 8 November 2014
 =====
 
