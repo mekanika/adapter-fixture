@@ -5,6 +5,15 @@ var expect = require('chai').expect
 
 describe('Fixture Adapter', function () {
 
+  var _FIXTURE = {
+    'supers': [
+      {id:1, handle:'Drzzt', type:'rogue', power:5, speed:12},
+      {id:2, handle:'Pug', type:'wizard', power:2, speed:5},
+      {id:3, handle:'Bruce', type:'fighter', power:15, speed:6},
+      {id:4, handle:'Joe', type:'rogue', power:8, speed:10},
+    ]
+  };
+
 
   it('throws if no callback provided', function (done) {
     try {
@@ -120,15 +129,6 @@ describe('Fixture Adapter', function () {
 
 
   describe('Match', function () {
-
-    var _FIXTURE = {
-      'supers': [
-        {id:1, handle:'Drzzt', type:'rogue', power:5, speed:12},
-        {id:2, handle:'Pug', type:'wizard', power:2, speed:5},
-        {id:3, handle:'Bruce', type:'fighter', power:15, speed:6},
-        {id:4, handle:'Joe', type:'rogue', power:8, speed:10},
-      ]
-    }
 
     beforeEach(function() {
       // copy fixture - my new favourite hack copy object method:
@@ -296,6 +296,20 @@ describe('Fixture Adapter', function () {
         });
       })
 
+    });
+
+  });
+
+
+  describe('Limit', function () {
+
+    it('on find', function (done) {
+      var qe = {do:'find', on:'supers', limit:2};
+      fixture._store = _FIXTURE;
+      fixture.exec( qe, function (e,r) {
+        expect( r ).to.have.length( 2 );
+        done();
+      });
     });
 
   });
