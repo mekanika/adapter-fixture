@@ -292,7 +292,7 @@
 
     qe.body.forEach( insert );
 
-    if (cb) cb( null, created.length > 1 ? created : created[0] );
+    if (cb) cb( null, created );
   };
 
 

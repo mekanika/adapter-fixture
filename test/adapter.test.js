@@ -33,7 +33,7 @@ describe('Fixture Adapter', function () {
     fixture.exec( qe, function (e,r) {
       expect( e ).to.not.exist;
       expect( r ).to.exist;
-      expect( r ).to.include.keys( 'name' );
+      expect( r[0] ).to.include.keys( 'name' );
       done();
     });
   });
@@ -41,7 +41,7 @@ describe('Fixture Adapter', function () {
   it('newly created entities have generated ids', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'Splergh'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r ).to.include.keys( 'id' );
+      expect( r[0] ).to.include.keys( 'id' );
       done();
     });
   });
@@ -75,8 +75,8 @@ describe('Fixture Adapter', function () {
   it('can fetch/read a single entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'DOTN'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r.id ).to.exist;
-      qe = {do:'find', on:'bands', ids:[r.id]};
+      expect( r[0].id ).to.exist;
+      qe = {do:'find', on:'bands', ids:[r[0].id]};
       fixture.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
         expect( r ).to.have.length( 1 );
@@ -90,7 +90,7 @@ describe('Fixture Adapter', function () {
   it('can update (partial PATCH) an entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'SDRE', albums:3}]};
     fixture.exec( qe, function (e,r) {
-      qe = {do:'update', on:'bands', ids:[r.id], body:[{albums:4}]};
+      qe = {do:'update', on:'bands', ids:[r[0].id], body:[{albums:4}]};
       fixture.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
         expect( r[0].albums ).to.equal( 4 );
