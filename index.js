@@ -117,11 +117,41 @@
   */
 
   function _toIndex( objs ) {
+    if (!objs || !objs.length) return [];
+
     var idx = [];
     objs.forEach( function (o,i) {
       idx.push( {index:i, record:o});
     });
     return idx;
+  }
+
+
+  /**
+    Filters results by `select`, `limit`
+
+    - Squash indexed results to raw array
+    - Limit the number of results
+    - Select whitelist/blacklist fields
+
+    @return {Array} of filtered results
+  */
+
+  function _filter( res, qe ) {
+    if (!res || !res.length) return [];
+
+    // Force 'indexed' results back to raw array
+    res = _squash(res, 'record');
+
+    if (!qe) return res;
+
+    // Limit results
+    if (qe.limit) res = res.slice(0, qe.limit);
+
+    // Apply selection
+    if (qe.select) res = _select( res, qe.select );
+
+    return res;
   }
 
 
@@ -292,7 +322,7 @@
 
     qe.body.forEach( insert );
 
-    if (cb) cb( null, created );
+    if (cb) cb( null, _filter(created, qe) );
   };
 
 
@@ -351,8 +381,7 @@
       }
     });
 
-
-    return cb( null, _squash(found, 'record') );
+    return cb( null, _filter(found, qe) );
   };
 
 
@@ -383,7 +412,7 @@
       ret.push.apply( ret, del )
     });
 
-    return cb( null, ret );
+    return cb( null, _filter(ret, qe) );
   };
 
 
@@ -401,14 +430,11 @@
     var found = _findAny( qe, true );
     if (!found.length) return cb(null, []);
 
-    // Offset
+    // Offset by number (only used in FIND)
     if ('number' === typeof qe.offset ) found = found.slice(qe.offset);
 
-    // Limit results
-    if (qe.limit) found = found.slice(0, qe.limit);
-
-    // Apply selection
-    found = _select( found, qe.select );
+    // Filter
+    found = _filter( found, qe );
 
     // Populate
     if (qe.populate) {
@@ -437,7 +463,8 @@
       });
     }
 
-    else return cb( null, _squash(found, 'record') );
+    // Note `_filter_ has been applied pre-populate. DO NOT refilter.
+    else return cb( null, found );
   };
 
 
