@@ -117,13 +117,12 @@
       var hits = [];
 
       mos.forEach( function (mo,i) {
-
-        var op = _lastkey( mo );
+        var key = _lastkey( mo );
         // Nested match condition
-        if (mo[op] instanceof Array) {
-          hits[i] = _mc( rec, mo[op], op);
+        if (mo[key] instanceof Array) {
+          hits[i] = _mc( rec, mo[key], key);;
         }
-        hits[i] = match(rec, mo);
+        else hits[i] = match(rec, mo);
       });
 
       // Collapse hits to a TRUE or FALSE based on boolops
