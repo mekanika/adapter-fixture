@@ -186,7 +186,8 @@
         case 'all':
           var _all = true;
           val.forEach( function(v) {
-            if (rec.field.indexOf(v) === -1) _all = false;
+            if (!rec[field]) _all = false;
+            else if (rec[field].indexOf(v) === -1) _all = false;
           });
           if (_all) hit = true;
         break;
