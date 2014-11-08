@@ -377,9 +377,6 @@
 
     if (qe.match) found = _match( found, qe.match );
 
-    // Clone the results so we're not destroying the DB
-    // omfg this is nasty. Serious eye bleeding. Never production.
-    found = JSON.parse( JSON.stringify(found) );
 
     // Offset
     if ('number' === typeof qe.offset ) found = found.slice(qe.offset);
@@ -392,6 +389,10 @@
 
     // Populate
     if (qe.populate) {
+      // Clone the results so we're not destructively updating DB on populate
+      // omfg this is nasty. Serious eye bleeding. Never production.
+      found = JSON.parse( JSON.stringify(found) );
+
       // Cheap/nasty async: number of searches required
       var _as = found.length * Object.keys(qe.populate).length;
 
@@ -414,8 +415,6 @@
     }
 
     else return cb( null, _squash(found, 'record') );
-
-
   };
 
 
