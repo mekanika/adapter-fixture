@@ -139,7 +139,7 @@ describe('Fixture Adapter', function () {
 
       var qe;
 
-      beforeEach(function() { qe = {on:'supers',do:'find',match:{and:[]}} });
+      beforeEach(function() { qe = {on:'supers',do:'find',match:{and:[]}}; });
 
       it('eq', function (done) {
         qe.match.and.push({power:{eq:5}});
@@ -152,7 +152,7 @@ describe('Fixture Adapter', function () {
       it('neq', function (done) {
         qe.match.and.push({power:{neq:5}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length(3)
+          expect( r ).to.have.length(3);
           expect( r[0].handle ).to.equal('Pug');
           done();
         });
@@ -298,7 +298,7 @@ describe('Fixture Adapter', function () {
           expect( r[1].handle ).to.equal('Joe'); //the rogue spped+power
           done();
         });
-      })
+      });
 
     });
 

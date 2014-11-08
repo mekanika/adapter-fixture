@@ -66,6 +66,7 @@
     ids.forEach( function (id) {
       fixture._store[ resource ].forEach( function (rec, i) {
         // COERCIVE equality!! Handy to paper over number vs. string typing
+        /* jshint eqeqeq:false */
         if (rec.id == id) _ret.push({index:i, record:rec});
       });
     });
@@ -194,7 +195,7 @@
       }
 
       return hit;
-    }
+    };
 
     function _mc (rec, mos, boolop) {
       var hits = [];
@@ -203,7 +204,7 @@
         var key = _lastkey( mo );
         // Nested match condition
         if (mo[key] instanceof Array) {
-          hits[i] = _mc( rec, mo[key], key);;
+          hits[i] = _mc( rec, mo[key], key);
         }
         else hits[i] = match(rec, mo);
       });
@@ -238,7 +239,7 @@
 
   function _chkdone (count, cb, res) {
     if (count === 0) cb( null, res );
-  };
+  }
 
 
   /**
@@ -410,7 +411,7 @@
       var del = fixture._store[ qe.on ].splice( res.index-removeCount, 1 );
       removeCount++;
       // Splice returns an array - push this onto return array
-      ret.push.apply( ret, del )
+      ret.push.apply( ret, del );
     });
 
     return cb( null, _filter(ret, qe) );
@@ -458,7 +459,7 @@
             // Enables looking up associations by a foreign key match
             var mo = {};
             mo[ pop.key ] = {in: rec[field]};
-            nq.match = {and:[mo]}
+            nq.match = {and:[mo]};
           }
           else nq.ids = rec[field];
 
