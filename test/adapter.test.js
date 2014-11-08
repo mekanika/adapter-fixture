@@ -10,7 +10,7 @@ describe('Fixture Adapter', function () {
       {id:1, handle:'Drzzt', type:'rogue', power:5, speed:12},
       {id:2, handle:'Pug', type:'wizard', power:2, speed:5},
       {id:3, handle:'Bruce', type:'fighter', power:15, speed:6},
-      {id:4, handle:'Joe', type:'rogue', power:8, speed:10},
+      {id:4, handle:'Joe', type:'rogue', power:8, speed:10}
     ]
   };
 
@@ -300,6 +300,64 @@ describe('Fixture Adapter', function () {
 
   });
 
+
+  describe('Populate', function () {
+
+    var _db = {
+      'supers': [
+        {id:2, handle:'Pug', type:'wizard', kicks:[1,3], tags:[1,3], powers:[1]},
+        {id:3, handle:'Bruce', type:'fighter', kicks:[], tags:[2], powers:[]},
+        {id:4, handle:'Joe', type:'rogue', kicks:[2,3], tags:[], powers:[2]}
+      ],
+      // Resource name matches field name, ids as 'id'
+      'tags': [
+        {id:1, body:'pro'},
+        {id:2, body:'noob'},
+        {id:3, body:'deadly'}
+      ],
+      // Alternatively named resource
+      'sidekicks': [
+        {id:1, workswith:[2], name:'Gir', skill:-3},
+        {id:2, workswith:[4], name:'Pop', skill:2},
+        {id:3, workswith:[2,4],name:'Moo', skill:5000}
+      ],
+      // Alternatively named ids
+      'powers': [
+        {power_id:1, name:'magic'},
+        {power_id:2, name:'lockpick'}
+      ]
+    };
+
+    beforeEach(function() {
+      // copy fixture - my new favourite hack copy object method:
+      fixture._store = JSON.parse( JSON.stringify(_db) );
+    });
+
+    it('handles default populating (undirected)', function (done) {
+      var qe = {on:'supers',do:'find', ids:[2], populate:{tags:{}}};
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].tags[0] ).to.have.keys('id','body');
+        done();
+      });
+    });
+
+    it('populates based on Qe lookup', function (done) {
+      var qe = {
+        on:'supers', do:'find', ids:[2],
+        populate: {kicks: {query:{
+          on:'sidekicks',
+          select:['-workswith'] // Blacklist!
+        }}}
+      };
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].kicks ).to.have.length(2);
+        // Check that the reference has been LOADED
+        expect( r[0].kicks[0] ).to.include.keys( 'name', 'skill' );
+        expect( r[0].kicks[0] ).to.not.have.key( 'workswith' );
+        done();
+      });
+    });
+  });
 
 
   describe('Select', function () {
