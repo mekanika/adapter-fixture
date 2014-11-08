@@ -65,11 +65,30 @@
 
     ids.forEach( function (id) {
       fixture._store[ resource ].forEach( function (rec, i) {
-        if (rec.id === id) _ret.push({index:i, record:rec});
+        // COERCIVE equality!! Handy to paper over number vs. string typing
+        if (rec.id == id) _ret.push({index:i, record:rec});
       });
     });
 
     return _ret;
+  }
+
+
+  /**
+    Helper: Creates an `[{index:$i, record:$rec},...]` representation of
+    an array of objects
+
+    @param {Array} objs
+
+    @return {Array} of `{index:$i, record:$obj}` objects
+  */
+
+  function _toIndex( objs ) {
+    var idx = [];
+    objs.forEach( function (o,i) {
+      idx.push( {index:i, record:o});
+    });
+    return idx;
   }
 
 
@@ -135,7 +154,13 @@
     var matches = [];
 
     recs.forEach( function (rec) {
-      if (_mc(rec, mc[boolop], boolop)) matches.push(rec);
+
+      // Support "indexed" results returned from _find()
+      var r = rec.record && Object.keys(rec).length === 2
+        ? rec.record
+        : rec;
+
+      if (_mc(r, mc[boolop], boolop)) matches.push(rec);
     });
 
     return matches;
@@ -170,6 +195,11 @@
   */
 
   function _squash (objs, key) {
+    // Don't squash arrays that don't need it
+    if (!objs.length) return objs;
+    // Hack duck typing (ie. expect obj.$key to NOT be a scalar attribute)
+    if (typeof objs[0][key] !== 'object') return objs;
+
     var ret = [];
     objs.forEach( function (o) {
       ret.push(o[key]);
@@ -244,13 +274,20 @@
 
   fixture.update = function( qe, cb ) {
 
-    if (!qe.ids || !qe.ids.length)
-      return cb('Must provide ids to update in Query .ids field');
+    var found = [];
 
-    var found = _find( qe.on, qe.ids );
+    // Load in specified ids
+    if (qe.ids) found = _find( qe.on, qe.ids );
+
+    // Apply match (if any)
+    if (qe.match) {
+      if (!qe.ids) found = _toIndex( fixture._store[ qe.on ] );
+      // Match on potential records
+      found = _match( found, qe.match );
+    }
+
     // @todo Is "not found" supposed to return in this error channel?
-    if (!found) return cb('Record not found to update');
-
+    if (!found.length) return cb('Record not found to update');
 
     var db = fixture._store[ qe.on ];
 
@@ -376,7 +413,7 @@
       });
     }
 
-    else return cb( null, found );
+    else return cb( null, _squash(found, 'record') );
 
 
   };

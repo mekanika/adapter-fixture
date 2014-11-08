@@ -87,13 +87,6 @@ describe('Fixture Adapter', function () {
     });
   });
 
-  it('.update errors if not provided ids', function (done) {
-    fixture.exec( {do:'update', on:'!', body:[1]}, function (e,r) {
-      expect( e ).to.match( /ids/ig );
-      done();
-    });
-  });
-
   it('can update (partial PATCH) an entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'SDRE', albums:3}]};
     fixture.exec( qe, function (e,r) {
@@ -244,6 +237,19 @@ describe('Fixture Adapter', function () {
         qe.do = 'find';
         fixture.exec( qe, function (e,r) {
           expect( r ).to.have.length( 4 );
+          done();
+        });
+      });
+
+      it('matches on update', function (done) {
+        qe.do = 'update';
+        qe.match = {and:[{type:{eq:'rogue'}}]};
+        qe.update = [{power:{inc:4}}];
+
+        fixture.exec( qe, function (e,r) {
+          expect( r ).to.have.length( 2 );
+          expect( r[0].power ).to.equal(9);
+          expect( r[1].power ).to.equal(12);
           done();
         });
       });
