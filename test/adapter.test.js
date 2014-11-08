@@ -127,6 +127,57 @@ describe('Fixture Adapter', function () {
   });
 
 
+  describe('Update operators', function () {
+
+    var qe;
+
+    beforeEach(function() {
+      qe = {on:'supers', do:'update', ids:[1], update:[]};
+      // copy fixture - my new favourite hack copy object method:
+      fixture._store = JSON.parse( JSON.stringify(_FIXTURE) );
+    });
+
+    it('inc', function (done) {
+      qe.update.push( {power:{inc:50}} );
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].power ).to.equal( 55 );
+        done();
+      });
+    });
+
+    it('push (array)', function (done) {
+      var topush = ['array'];
+      qe.update.push( {extra:{push:topush}} );
+
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].extra ).to.have.length( 3 );
+        expect( r[0].extra[2] ).to.equal('array');
+        done();
+      });
+    });
+
+    it('push (scalar)', function (done) {
+      var topush = 'scalar';
+      qe.update.push( {extra:{push:topush}} );
+
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].extra ).to.have.length( 3 );
+        expect( r[0].extra[2] ).to.equal( 'scalar' );
+        done();
+      });
+    });
+
+    it('pull (array)', function (done) {
+      var topull = ['a','b'];
+      qe.update.push( {extra:{pull:topull}} );
+
+      fixture.exec( qe, function (e,r) {
+        expect( r[0].extra ).to.have.length( 0 );
+        done();
+      });
+    });
+  });
+
 
   describe('Match', function () {
 

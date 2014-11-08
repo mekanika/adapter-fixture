@@ -369,7 +369,7 @@
               break;
             case 'push':
               if (value instanceof Array)
-                debrec[field] = debrec[field].concat( value );
+                dbrec[field] = dbrec[field].concat( value );
               else dbrec[field].push( value );
               break;
             case 'pull':
