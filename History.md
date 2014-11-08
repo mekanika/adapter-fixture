@@ -1,3 +1,23 @@
+0.3.0 - 8 November 2014
+=====
+
+Major stability and Qe compliance release.
+Only 'sort' is not supported.
+
+Changed:
+
+- All results are always arrays even on single results
+- Filter (limit & select) apply to all relevant actions
+
+Added:
+
+- `.match` support for all relevant actions
+- Populate on foreign key
+- 'all' match operator support
+- Test coverage :)
+
+
+
 0.2.0 - 7 November 2014
 =====
 
