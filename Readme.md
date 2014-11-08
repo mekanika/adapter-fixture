@@ -2,9 +2,8 @@
 
 [**Qe** (Query envelope)](https://github.com/mekanika/qe/) enabled in-memory adapter.
 
-This adapter stores, updates and retrieves records from memory. It is **not intended for production**. Its primary use is for development testing as a fixture without requiring a backend.
+This adapter stores, updates and retrieves records from a memory store. It is **not intended for production**. Its primary use is for development testing as a fixture without requiring a backend.
 
-> **Note**: The goal is for this adapter to fully support the base
 
 ## Usage
 
@@ -32,11 +31,20 @@ Supports `.match` and the following match operators:
 
 Supports `.populate`:
 
+- by field name: `{ 'friends':{} }`
+- with Qe: `{ 'friends': {query:{on:'users'}} }`
+- on foreign key: `{'friends': {key: 'users_id'} }`
+
 ```js
 {
   do:'find',
   on:'posts',
-  populate:{'comments':{}}
+  populate:{
+    'comments': {
+      key:'cmt_id',
+      query: {select: ['body']}
+    }
+  }
 }
 ```
 
