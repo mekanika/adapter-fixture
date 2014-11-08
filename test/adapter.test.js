@@ -469,4 +469,18 @@ describe('Fixture Adapter', function () {
 
   });
 
+
+  describe('Offset', function () {
+
+    it('by number', function (done) {
+      var qe = {do:'find', on:'supers', offset:2};
+      fixture._store = _FIXTURE;
+      fixture.exec( qe, function (e,r) {
+        expect( r ).to.have.length( 2 );
+        done();
+      });
+    })
+
+  });
+
 });
