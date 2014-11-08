@@ -356,21 +356,34 @@
   };
 
 
+
+
   /**
-    Deletes a record/s
+    Deletes a record/s matching `qe.ids` and/or `qe.match` conditions
+    Returns array of results removed
+
+    @param {Qe} qe
+    @param {Function} cb passed (err, res)
   */
 
   fixture.remove = function( qe, cb ) {
+    // Fetch matching records
+    var found = _findAny( qe );
+    if (!found.length) return cb(null, []);
 
-    if (!qe.ids || !qe.ids.length)
-      return cb( 'Must provide ids to remove in Query .ids' );
+    var ret = [];
 
-    var found = _find( qe.on, qe.ids );
+    // Last index is used because the DB length CHANGES each remove
+    var removeCount = 0;
+
     found.forEach( function(res) {
-      fixture._store[ qe.on ].splice( res.index, 1 );
+      var del = fixture._store[ qe.on ].splice( res.index-removeCount, 1 );
+      removeCount++;
+      // Splice returns an array - push this onto return array
+      ret.push.apply( ret, del )
     });
 
-    return cb( null, true );
+    return cb( null, ret );
   };
 
 

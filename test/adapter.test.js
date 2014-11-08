@@ -99,14 +99,6 @@ describe('Fixture Adapter', function () {
     });
   });
 
-  it('.delete callsback error if no ids provided', function (done) {
-    var qe = {do:'remove', on:'bands'};
-    fixture.exec( qe, function (e,r) {
-      expect( e ).to.match( /ids/ig );
-      done();
-    });
-  });
-
   it('can delete an entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'Starfucker'}]};
     var id;
@@ -250,6 +242,18 @@ describe('Fixture Adapter', function () {
           expect( r ).to.have.length( 2 );
           expect( r[0].power ).to.equal(9);
           expect( r[1].power ).to.equal(12);
+          done();
+        });
+      });
+
+      it('matches on remove', function (done) {
+        qe.do = 'remove';
+        qe.match = {and:[{type:{eq:'rogue'}}]};
+
+        fixture.exec( qe, function (e,r) {
+          expect( r ).to.have.length( 2 );
+          expect( r[0].type ).to.equal( 'rogue' );
+          expect( r[1].type ).to.equal( 'rogue' );
           done();
         });
       });
