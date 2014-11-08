@@ -75,6 +75,39 @@
 
 
   /**
+    Finds by .ids and by .match and returns array of indexed records:
+
+        [{index:$i, record:$rec},...]
+
+    @param {Qe} qe to check ids and match conditions
+    @param {Boolean} forceDump Forces return of ALL `qe.on` fields if no match
+
+    @return {Array} of indexed records
+  */
+
+  function _findAny( qe, forceDump ) {
+    var found = [];
+
+    // Load in specified ids
+    if (qe.ids) found = _find( qe.on, qe.ids );
+
+    // Apply match (if any)
+    if (qe.match) {
+      if (!qe.ids) found = _toIndex( fixture._store[ qe.on ] );
+      // Match on potential records
+      found = _match( found, qe.match );
+    }
+
+    // Dump results if instructed (and no other conditions present)
+    if (forceDump && !qe.ids && !qe.match) {
+      found = _toIndex( fixture._store[ qe.on ] );
+    }
+
+    return found;
+  }
+
+
+  /**
     Helper: Creates an `[{index:$i, record:$rec},...]` representation of
     an array of objects
 
@@ -274,18 +307,7 @@
 
   fixture.update = function( qe, cb ) {
 
-    var found = [];
-
-    // Load in specified ids
-    if (qe.ids) found = _find( qe.on, qe.ids );
-
-    // Apply match (if any)
-    if (qe.match) {
-      if (!qe.ids) found = _toIndex( fixture._store[ qe.on ] );
-      // Match on potential records
-      found = _match( found, qe.match );
-    }
-
+    var found = _findAny( qe );
     // @todo Is "not found" supposed to return in this error channel?
     if (!found.length) return cb('Record not found to update');
 
@@ -362,21 +384,9 @@
   */
 
   fixture.find = function( qe, cb ) {
-    var found = [];
-
-    // Specifically Get by IDs
-    if (qe.ids) {
-      _find( qe.on, qe.ids ).forEach( function (rec) {
-        found.push( rec.record );
-      })
-    }
-    // Otherwise: find MANY
-    else if (fixture._store[ qe.on ])
-      found = fixture._store[ qe.on ];
-
-
-    if (qe.match) found = _match( found, qe.match );
-
+    // Get initial results
+    var found = _findAny( qe, true );
+    if (!found.length) return cb(null, []);
 
     // Offset
     if ('number' === typeof qe.offset ) found = found.slice(qe.offset);
