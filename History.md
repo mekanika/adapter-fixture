@@ -1,3 +1,12 @@
+0.3.2 - 9 November 2014
+=====
+
+Fixed:
+
+- `_lastKey()` internal only returns hasOwnProperties (MatchContainer fix)
+
+
+
 0.3.1 - 8 November 2014
 =====
 
