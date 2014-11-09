@@ -250,7 +250,7 @@
 
   function _lastkey (block) {
     var ret;
-    for (var key in block) ret = key;
+    for (var key in block) if (block.hasOwnProperty(key)) ret = key;
     return ret;
   }
 

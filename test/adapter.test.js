@@ -126,6 +126,21 @@ describe('Fixture Adapter', function () {
     });
   });
 
+  it('helper method _lastkey only matches own properties', function (done) {
+    // Setup a dummy match constraint
+    // If _lastkey doesn't filter 'dummykey', it will BLOWUP and this test fails
+    function Obj (key, val) { this[key] = val; }
+    Obj.prototype.dummykey = true;
+    var mc = new Obj('and', [{type:{eq:'rogue'}}]);
+
+    fixture._store = _FIXTURE;
+
+    fixture.exec( {on:'supers', do:'find', match:mc}, function (e,r) {
+      expect( r ).to.have.length(2);
+      done();
+    });
+  });
+
 
   describe('Update operators', function () {
 
