@@ -326,10 +326,11 @@
     var created = [];
 
     var insert = function (record) {
-      if (record.id) throw new Error('Fuck you, id exists');
-        // Generate ID
-      var id = Math.random().toString(36).substr(2);
-      record.id = id;
+      // Allow custom id to be passed, otherwise generate
+      if (!record.id) {
+        var id = Math.random().toString(36).substr(2);
+        record.id = id;
+      }
 
       if (!this._store[ qe.on ]) this._store[ qe.on ] = [];
       this._store[ qe.on ].push( record );

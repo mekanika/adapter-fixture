@@ -47,10 +47,11 @@ describe('Fixture Adapter', function () {
     });
   });
 
-  it('newly created entities have generated ids', function (done) {
-    var qe = {do:'create', on:'bands', body:[{name:'Splergh'}]};
+  it('created entities use passed `id` or generated ids', function (done) {
+    var qe = {do:'create', on:'bands', body:[{id:'abc',name:'x'}, {name:'y'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r[0] ).to.include.keys( 'id' );
+      expect( r[0].id ).to.equal('abc');
+      expect( r[1] ).to.include.keys( 'id' );
       done();
     });
   });
