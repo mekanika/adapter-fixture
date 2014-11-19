@@ -16,7 +16,21 @@
     The core module
   */
 
-  var fixture = {};
+  function Fixture() {};
+
+
+  /**
+    Prototype shorthand
+  */
+
+  var fixture = Fixture.prototype;
+
+
+  /**
+    Enable the instantiation of new Fixtures from any instance
+  */
+
+  fixture.new = function () { return new Fixture(); };
 
 
   /**
@@ -42,9 +56,9 @@
     if (!cb) throw new Error('Missing callback');
 
     if (!query.do || !query.on)
-      return cb('Invalid query: must provide `action` and `resource`');
+      return cb('Invalid query: must provide `do` and `on` fields');
 
-    if (fixture[ query.do ]) return fixture[ query.do ]( query, cb );
+    if (fixture[ query.do ]) return this[ query.do ]( query, cb );
     else cb && cb( 'No matching action' );
   };
 
@@ -64,12 +78,12 @@
     if (!(ids instanceof Array)) ids = [ids];
 
     ids.forEach( function (id) {
-      fixture._store[ resource ].forEach( function (rec, i) {
+      this._store[ resource ].forEach( function (rec, i) {
         // COERCIVE equality!! Handy to paper over number vs. string typing
         /* jshint eqeqeq:false */
         if (rec.id == id) _ret.push({index:i, record:rec});
       });
-    });
+    }, this);
 
     return _ret;
   }
@@ -90,18 +104,18 @@
     var found = [];
 
     // Load in specified ids
-    if (qe.ids) found = _find( qe.on, qe.ids );
+    if (qe.ids) found = _find.call( this, qe.on, qe.ids );
 
     // Apply match (if any)
     if (qe.match) {
-      if (!qe.ids) found = _toIndex( fixture._store[ qe.on ] );
+      if (!qe.ids) found = _toIndex( this._store[ qe.on ] );
       // Match on potential records
-      found = _match( found, qe.match );
+      found = _match.call( this, found, qe.match );
     }
 
     // Dump results if instructed (and no other conditions present)
     if (forceDump && !qe.ids && !qe.match) {
-      found = _toIndex( fixture._store[ qe.on ] );
+      found = _toIndex( this._store[ qe.on ] );
     }
 
     return found;
@@ -317,12 +331,12 @@
       var id = Math.random().toString(36).substr(2);
       record.id = id;
 
-      if (!fixture._store[ qe.on ]) fixture._store[ qe.on ] = [];
-      fixture._store[ qe.on ].push( record );
+      if (!this._store[ qe.on ]) this._store[ qe.on ] = [];
+      this._store[ qe.on ].push( record );
       created.push( record );
     };
 
-    qe.body.forEach( insert );
+    qe.body.forEach( insert.bind(this) );
 
     if (cb) cb( null, _filter(created, qe) );
   };
@@ -339,11 +353,11 @@
 
   fixture.update = function( qe, cb ) {
 
-    var found = _findAny( qe );
+    var found = _findAny.call( this, qe );
     // @todo Is "not found" supposed to return in this error channel?
     if (!found.length) return cb('Record not found to update');
 
-    var db = fixture._store[ qe.on ];
+    var db = this._store[ qe.on ];
 
     found.forEach( function (res) {
 
@@ -379,9 +393,9 @@
               });
               break;
           }
-        });
+        }, this);
       }
-    });
+    }, this);
 
     return cb( null, _filter(found, qe) );
   };
@@ -399,7 +413,7 @@
 
   fixture.remove = function( qe, cb ) {
     // Fetch matching records
-    var found = _findAny( qe );
+    var found = _findAny.call( this, qe );
     if (!found.length) return cb(null, []);
 
     var ret = [];
@@ -408,11 +422,11 @@
     var removeCount = 0;
 
     found.forEach( function(res) {
-      var del = fixture._store[ qe.on ].splice( res.index-removeCount, 1 );
+      var del = this._store[ qe.on ].splice( res.index-removeCount, 1 );
       removeCount++;
       // Splice returns an array - push this onto return array
       ret.push.apply( ret, del );
-    });
+    }, this);
 
     return cb( null, _filter(ret, qe) );
   };
@@ -429,7 +443,7 @@
 
   fixture.find = function( qe, cb ) {
     // Get initial results
-    var found = _findAny( qe, true );
+    var found = _findAny.call( this, qe, true );
     if (!found.length) return cb(null, []);
 
     // Offset by number (only used in FIND)
@@ -463,13 +477,13 @@
           }
           else nq.ids = rec[field];
 
-          fixture.find( nq, function (e,r) {
+          this.find( nq, function (e,r) {
             if (e) return cb('Died: '+e);
             rec[field] = r;
             _chkdone( --_as, cb, found );
           });
-        });
-      });
+        }, this);
+      }, this);
     }
 
     // Note `_filter_ has been applied pre-populate. DO NOT refilter.
@@ -481,6 +495,6 @@
     Export the module
   */
 
-  return fixture;
+  return new Fixture();
 
 });
