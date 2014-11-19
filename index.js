@@ -16,7 +16,7 @@
     The core module
   */
 
-  function Fixture() {};
+  function Fixture() {}
 
 
   /**
@@ -179,7 +179,7 @@
     @return {Array} Matching results
   */
 
-  function _match( recs, mc ) {
+  function _match (col, mc) {
 
     var match = function (rec, mo) {
       var field = _lastkey(mo);
@@ -199,11 +199,11 @@
         case 'lt': if (rec[field] < val) hit = true; break;
         case 'lte': if (rec[field] <= val) hit = true; break;
         case 'all':
-          var _all = true;
-          val.forEach( function(v) {
+          var _all = true, i = -1;
+          while (++i < val.length) {
             if (!rec[field]) _all = false;
-            else if (rec[field].indexOf(v) === -1) _all = false;
-          });
+            else if (rec[field].indexOf(val[i]) === -1) _all = false;
+          }
           if (_all) hit = true;
         break;
       }
@@ -211,17 +211,19 @@
       return hit;
     };
 
-    function _mc (rec, mos, boolop) {
+    function _mc (el, mos, boolop) {
       var hits = [];
 
-      mos.forEach( function (mo,i) {
+      var i = -1;
+      while (++i < mos.length) {
+        var mo = mos[i];
         var key = _lastkey( mo );
         // Nested match condition
         if (mo[key] instanceof Array) {
-          hits[i] = _mc( rec, mo[key], key);
+          hits[i] = _mc( el, mo[key], key);
         }
-        else hits[i] = match(rec, mo);
-      });
+        else hits[i] = match(el, mo);
+      }
 
       // Collapse hits to a TRUE or FALSE based on boolops
       return boolop === 'or'
@@ -232,15 +234,16 @@
     var boolop = _lastkey(mc);
     var matches = [];
 
-    recs.forEach( function (rec) {
-
+    var ci = -1;
+    while (++ci < col.length) {
+      var el = col[ci];
       // Support "indexed" results returned from _find()
-      var r = rec.record && Object.keys(rec).length === 2
-        ? rec.record
-        : rec;
+      var r = el.record && Object.keys(el).length === 2
+        ? el.record
+        : el;
 
-      if (_mc(r, mc[boolop], boolop)) matches.push(rec);
-    });
+      if (_mc(r, mc[boolop], boolop)) matches.push(el);
+    }
 
     return matches;
   }

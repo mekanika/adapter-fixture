@@ -495,7 +495,7 @@ describe('Fixture Adapter', function () {
         expect( r ).to.have.length( 2 );
         done();
       });
-    })
+    });
 
   });
 
