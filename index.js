@@ -477,7 +477,12 @@
             // Enables looking up associations by a foreign key match
             var mo = {};
             mo[ pop.key ] = {in: rec[field]};
-            nq.match = {and:[mo]};
+            // Extend an existing .match field
+            if (nq.match) {
+              if (nq.match.and) nq.match.and.push(mo);
+              else nq.match = {and:[mo, nq.match]};
+            }
+            else nq.match = {and:[mo]};
           }
           else nq.ids = rec[field];
 
