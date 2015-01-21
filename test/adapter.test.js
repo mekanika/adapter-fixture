@@ -9,7 +9,7 @@ describe('Fixture Adapter', function () {
     'supers': [
       {id:1, handle:'Drzzt', type:'rogue', power:5, speed:12, extra:['a','b']},
       {id:2, handle:'Pug', type:'wizard', power:2, speed:5},
-      {id:3, handle:'Bruce', type:'fighter', power:15, speed:6},
+      {id:3, handle:'Bruce', type:'fighter', power:15, speed:6, extra:['b']},
       {id:4, handle:'Joe', type:'rogue', power:8, speed:10}
     ]
   };
@@ -247,6 +247,14 @@ describe('Fixture Adapter', function () {
         qe.match.and.push({extra:{all:['a','b']}});
         fixture.exec( qe, function (e,r) {
           expect( r[0].handle ).to.equal('Drzzt');
+          done();
+        });
+      });
+
+      it('any', function (done) {
+        qe.match.and.push({extra:{any:['b']}});
+        fixture.exec( qe, function (e,r) {
+          expect(r).to.have.length(2);
           done();
         });
       });
