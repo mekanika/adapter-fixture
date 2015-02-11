@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "coverage": "istanbul cover _mocha",
-    "docs": "jsdoc index.js -p",
+    "docs": "jsdoc index.js -p -R README.md",
     "lint": "jshint --config .jshintrc index.js test/*.js",
     "test": "mocha -R spec test"
   },

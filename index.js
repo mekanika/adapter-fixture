@@ -20,7 +20,7 @@
 
 
   /**
-    Prototype shorthand
+    @exports FixtureAdapter
   */
 
   var fixture = Fixture.prototype;
@@ -28,6 +28,8 @@
 
   /**
     Enable the instantiation of new Fixtures from any instance
+
+    @return {FixtureAdapter} A new fixture adapter
   */
 
   fixture.new = function () { return new Fixture(); };
@@ -36,29 +38,44 @@
   /**
     Internal data storage
     Available as `fixture._store` for manual override
+    @private
   */
 
   fixture._store = {};
 
 
   /**
+    General Adapter callback executed when adapter either:
+
+    - Errors `(error)`
+    - Completes the call: `(null, results)`
+
+    @callback AdapterCallback
+    @param {Mixed} error An error if present, `null` if not
+    @param {Object} results A results object if no error is present
+  */
+
+  /**
+    A Query Envelope control message
+    @typedef {Object} QueryEnvelope
+    @see Query Envelopes - {@link https://github.com/mekanika/qe}
+  */
+
+  /**
     Primary adapter
 
-    @param {Query} query
-    @param {Function} cb Callback passed (error, results)
-
+    @param {QueryEnvelope} qe
+    @param {AdapterCallback} cb Function executed on completion with `(err,res)`
     @public
   */
 
-  fixture.exec = function( query, cb ) {
-    // console.log('Memory:', query.toObject ? query.toObject() : query );
-
+  fixture.exec = function( qe, cb ) {
     if (!cb) throw new Error('Missing callback');
 
-    if (!query.do || !query.on)
-      return cb('Invalid query: must provide `do` and `on` fields');
+    if (!qe.do || !qe.on)
+      return cb('Invalid qe: must provide `do` and `on` fields');
 
-    if (fixture[ query.do ]) return this[ query.do ]( query, cb );
+    if (fixture[ qe.do ]) return this[ qe.do ]( qe, cb );
     else cb && cb( 'No matching action' );
   };
 
@@ -326,8 +343,8 @@
   /**
     Creates new record/s
 
-    @param {Qe} qe
-    @param {Function} cb
+    @param {QueryEnvelope} qe
+    @param {AdapterCallback} cb
 
     @private
   */
@@ -356,8 +373,8 @@
   /**
     Update (partial) a record/s
 
-    @param {QueryObject} qe
-    @param {Function} cb
+    @param {QueryEnvelope} qe
+    @param {AdapterCallback} cb
 
     @private
   */
@@ -412,14 +429,14 @@
   };
 
 
-
-
   /**
     Deletes a record/s matching `qe.ids` and/or `qe.match` conditions
     Returns array of results removed
 
-    @param {Qe} qe
-    @param {Function} cb passed (err, res)
+    @param {QueryEnvelope} qe
+    @param {AdapterCallback} cb passed (err, res)
+
+    @private
   */
 
   fixture.remove = function( qe, cb ) {
@@ -446,8 +463,8 @@
   /**
     Retrieve record/s
 
-    @param {QueryObject} qe
-    @param {Function} cb
+    @param {QueryEnvelope} qe
+    @param {AdapterCallback} cb
 
     @private
   */
