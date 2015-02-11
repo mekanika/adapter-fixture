@@ -28,10 +28,10 @@ describe('Fixture Adapter', function () {
   it('callbacks error if invalid query', function (done) {
     var qe = {on:'x'};
     fixture.exec( qe, function (e,r) {
-      expect( e ).to.match( /invalid query/ig );
+      expect( e ).to.match( /invalid qe/ig );
       qe = {do:'x'};
       fixture.exec( qe, function (e,r) {
-        expect( e ).to.match( /invalid query/ig );
+        expect( e ).to.match( /invalid qe/ig );
         done();
       });
     });
@@ -42,7 +42,7 @@ describe('Fixture Adapter', function () {
     fixture.exec( qe, function (e,r) {
       expect( e ).to.not.exist;
       expect( r ).to.exist;
-      expect( r[0] ).to.include.keys( 'name' );
+      expect( r.bands[0] ).to.include.keys( 'name' );
       done();
     });
   });
@@ -50,8 +50,8 @@ describe('Fixture Adapter', function () {
   it('created entities use passed `id` or generated ids', function (done) {
     var qe = {do:'create', on:'bands', body:[{id:'abc',name:'x'}, {name:'y'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r[0].id ).to.equal('abc');
-      expect( r[1] ).to.include.keys( 'id' );
+      expect( r.bands[0].id ).to.equal('abc');
+      expect( r.bands[1] ).to.include.keys( 'id' );
       done();
     });
   });
@@ -59,7 +59,7 @@ describe('Fixture Adapter', function () {
   it('can create multiple new entries', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'Woo'}, {name:'Um'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r ).to.have.length( 2 );
+      expect( r.bands ).to.have.length( 2 );
       done();
     });
   });
@@ -69,7 +69,7 @@ describe('Fixture Adapter', function () {
     fixture.exec( qe, function (e,r) {
       // This value is based on the STATE of previous tests. Not a great idea.
       // Can't be fucked making this stateless. @todo
-      expect( r ).to.have.length.above( 1 );
+      expect( r.bands ).to.have.length.above( 1 );
       done();
     });
   });
@@ -77,7 +77,7 @@ describe('Fixture Adapter', function () {
   it('returns an empty list if no records found', function (done) {
     var qe = {do:'find', on:'slime'};
     fixture.exec( qe, function (e,r) {
-      expect( r ).to.have.length( 0 );
+      expect( r.slime ).to.have.length( 0 );
       done();
     });
   });
@@ -85,12 +85,12 @@ describe('Fixture Adapter', function () {
   it('can fetch/read a single entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'DOTN'}]};
     fixture.exec( qe, function (e,r) {
-      expect( r[0].id ).to.exist;
-      qe = {do:'find', on:'bands', ids:[r[0].id]};
+      expect( r.bands[0].id ).to.exist;
+      qe = {do:'find', on:'bands', ids:[r.bands[0].id]};
       fixture.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
-        expect( r ).to.have.length( 1 );
-        expect( r[0].name ).to.equal( 'DOTN' );
+        expect( r.bands ).to.have.length( 1 );
+        expect( r.bands[0].name ).to.equal( 'DOTN' );
         done();
       });
 
@@ -100,10 +100,10 @@ describe('Fixture Adapter', function () {
   it('can update (partial PATCH) an entry', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'SDRE', albums:3}]};
     fixture.exec( qe, function (e,r) {
-      qe = {do:'update', on:'bands', ids:[r[0].id], body:[{albums:4}]};
+      qe = {do:'update', on:'bands', ids:[r.bands[0].id], body:[{albums:4}]};
       fixture.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
-        expect( r[0].albums ).to.equal( 4 );
+        expect( r.bands[0].albums ).to.equal( 4 );
         done();
       });
     });
@@ -113,14 +113,14 @@ describe('Fixture Adapter', function () {
     var qe = {do:'create', on:'bands', body:[{name:'Starfucker'}]};
     var id;
     fixture.exec( qe, function (e,r) {
-      id = r.id;
+      id = r.bands[0].id;
       qe = {do:'remove', on:'bands', ids:[id]};
       fixture.exec( qe, function (e,r) {
         expect( e ).to.not.exist;
         qe = {do:'find', on:'bands', ids:[id]};
         fixture.exec( qe, function (e,rx) {
           expect( e ).to.not.exist;
-          expect( rx ).to.have.length( 0 );
+          expect( rx.bands).to.have.length( 0 );
           done();
         });
       });
@@ -137,7 +137,7 @@ describe('Fixture Adapter', function () {
     fixture._store = _FIXTURE;
 
     fixture.exec( {on:'supers', do:'find', match:mc}, function (e,r) {
-      expect( r ).to.have.length(2);
+      expect( r.supers ).to.have.length(2);
       done();
     });
   });
@@ -156,7 +156,7 @@ describe('Fixture Adapter', function () {
     it('inc', function (done) {
       qe.update.push( {power:{inc:50}} );
       fixture.exec( qe, function (e,r) {
-        expect( r[0].power ).to.equal( 55 );
+        expect( r.supers[0].power ).to.equal( 55 );
         done();
       });
     });
@@ -166,8 +166,8 @@ describe('Fixture Adapter', function () {
       qe.update.push( {extra:{push:topush}} );
 
       fixture.exec( qe, function (e,r) {
-        expect( r[0].extra ).to.have.length( 3 );
-        expect( r[0].extra[2] ).to.equal('array');
+        expect( r.supers[0].extra ).to.have.length( 3 );
+        expect( r.supers[0].extra[2] ).to.equal('array');
         done();
       });
     });
@@ -177,8 +177,8 @@ describe('Fixture Adapter', function () {
       qe.update.push( {extra:{push:topush}} );
 
       fixture.exec( qe, function (e,r) {
-        expect( r[0].extra ).to.have.length( 3 );
-        expect( r[0].extra[2] ).to.equal( 'scalar' );
+        expect( r.supers[0].extra ).to.have.length( 3 );
+        expect( r.supers[0].extra[2] ).to.equal( 'scalar' );
         done();
       });
     });
@@ -188,7 +188,7 @@ describe('Fixture Adapter', function () {
       qe.update.push( {extra:{pull:topull}} );
 
       fixture.exec( qe, function (e,r) {
-        expect( r[0].extra ).to.have.length( 0 );
+        expect( r.supers[0].extra ).to.have.length( 0 );
         done();
       });
     });
@@ -211,7 +211,7 @@ describe('Fixture Adapter', function () {
       it('eq', function (done) {
         qe.match.and.push({power:{eq:5}});
         fixture.exec(qe, function (e,r) {
-          expect( r[0].handle ).to.equal('Drzzt');
+          expect( r.supers[0].handle ).to.equal('Drzzt');
           done();
         });
       });
@@ -219,8 +219,8 @@ describe('Fixture Adapter', function () {
       it('neq', function (done) {
         qe.match.and.push({power:{neq:5}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length(3);
-          expect( r[0].handle ).to.equal('Pug');
+          expect( r.supers ).to.have.length(3);
+          expect( r.supers[0].handle ).to.equal('Pug');
           done();
         });
       });
@@ -228,8 +228,8 @@ describe('Fixture Adapter', function () {
       it('in', function (done) {
         qe.match.and.push({type:{in:['wizard', 'fighter']}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].handle ).to.equal('Pug');
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].handle ).to.equal('Pug');
           done();
         });
       });
@@ -237,8 +237,8 @@ describe('Fixture Adapter', function () {
       it('nin', function (done) {
         qe.match.and.push({type:{nin:['wizard', 'fighter']}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].handle ).to.equal('Drzzt');
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].handle ).to.equal('Drzzt');
           done();
         });
       });
@@ -246,7 +246,7 @@ describe('Fixture Adapter', function () {
       it('all', function (done) {
         qe.match.and.push({extra:{all:['a','b']}});
         fixture.exec( qe, function (e,r) {
-          expect( r[0].handle ).to.equal('Drzzt');
+          expect( r.supers[0].handle ).to.equal('Drzzt');
           done();
         });
       });
@@ -254,7 +254,7 @@ describe('Fixture Adapter', function () {
       it('any', function (done) {
         qe.match.and.push({extra:{any:['b']}});
         fixture.exec( qe, function (e,r) {
-          expect(r).to.have.length(2);
+          expect( r.supers ).to.have.length(2);
           done();
         });
       });
@@ -262,8 +262,8 @@ describe('Fixture Adapter', function () {
       it('gt', function (done) {
         qe.match.and.push({speed:{gt:10}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 1 );
-          expect( r[0].handle ).to.equal('Drzzt');
+          expect( r.supers ).to.have.length( 1 );
+          expect( r.supers[0].handle ).to.equal('Drzzt');
           done();
         });
       });
@@ -271,8 +271,8 @@ describe('Fixture Adapter', function () {
       it('gte', function (done) {
         qe.match.and.push({speed:{gte:10}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].handle ).to.equal('Drzzt');
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].handle ).to.equal('Drzzt');
           done();
         });
       });
@@ -280,8 +280,8 @@ describe('Fixture Adapter', function () {
       it('lt', function (done) {
         qe.match.and.push({speed:{lt:10}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].handle ).to.equal('Pug');
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].handle ).to.equal('Pug');
           done();
         });
       });
@@ -289,8 +289,8 @@ describe('Fixture Adapter', function () {
       it('lte', function (done) {
         qe.match.and.push({speed:{lte:10}});
         fixture.exec(qe, function (e,r) {
-          expect( r ).to.have.length( 3 );
-          expect( r[2].handle ).to.equal('Joe');
+          expect( r.supers ).to.have.length( 3 );
+          expect( r.supers[2].handle ).to.equal('Joe');
           done();
         });
       });
@@ -307,7 +307,7 @@ describe('Fixture Adapter', function () {
       it('matches on find', function (done) {
         qe.do = 'find';
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length( 4 );
+          expect( r.supers ).to.have.length( 4 );
           done();
         });
       });
@@ -318,9 +318,9 @@ describe('Fixture Adapter', function () {
         qe.update = [{power:{inc:4}}];
 
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].power ).to.equal(9);
-          expect( r[1].power ).to.equal(12);
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].power ).to.equal(9);
+          expect( r.supers[1].power ).to.equal(12);
           done();
         });
       });
@@ -330,9 +330,9 @@ describe('Fixture Adapter', function () {
         qe.match = {and:[{type:{eq:'rogue'}}]};
 
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length( 2 );
-          expect( r[0].type ).to.equal( 'rogue' );
-          expect( r[1].type ).to.equal( 'rogue' );
+          expect( r.supers ).to.have.length( 2 );
+          expect( r.supers[0].type ).to.equal( 'rogue' );
+          expect( r.supers[1].type ).to.equal( 'rogue' );
           done();
         });
       });
@@ -347,8 +347,8 @@ describe('Fixture Adapter', function () {
       it('matches on multiple conditions', function (done) {
         qe.match.and = [{speed:{gt:8}}, {power:{gte:8}}];
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length(1);
-          expect( r[0].handle ).to.equal('Joe');
+          expect( r.supers ).to.have.length(1);
+          expect( r.supers[0].handle ).to.equal('Joe');
           done();
         });
       });
@@ -356,7 +356,7 @@ describe('Fixture Adapter', function () {
       it('matches on OR container', function (done) {
         qe.match = {or:[{speed:{gt:8}}, {power:{gte:8}}]};
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length(3);
+          expect( r.supers ).to.have.length(3);
           done();
         });
       });
@@ -368,9 +368,9 @@ describe('Fixture Adapter', function () {
             {type:{eq:'wizard'}}
             ]};
         fixture.exec( qe, function (e,r) {
-          expect( r ).to.have.length(2);
-          expect( r[0].handle ).to.equal('Pug'); //the wizard
-          expect( r[1].handle ).to.equal('Joe'); //the rogue spped+power
+          expect( r.supers ).to.have.length(2);
+          expect( r.supers[0].handle ).to.equal('Pug'); //the wizard
+          expect( r.supers[1].handle ).to.equal('Joe'); //the rogue spped+power
           done();
         });
       });
@@ -415,7 +415,7 @@ describe('Fixture Adapter', function () {
     it('handles default populating (undirected)', function (done) {
       var qe = {on:'supers',do:'find', ids:[2], populate:{tags:{}}};
       fixture.exec( qe, function (e,r) {
-        expect( r[0].tags[0] ).to.have.keys('id','body');
+        expect( r.linked.tags[0] ).to.have.keys('id','body');
         done();
       });
     });
@@ -429,10 +429,10 @@ describe('Fixture Adapter', function () {
         }}}
       };
       fixture.exec( qe, function (e,r) {
-        expect( r[0].kicks ).to.have.length(2);
+        expect( r.linked.kicks ).to.have.length(2);
         // Check that the reference has been LOADED
-        expect( r[0].kicks[0] ).to.include.keys( 'name', 'skill' );
-        expect( r[0].kicks[0] ).to.not.have.key( 'workswith' );
+        expect( r.linked.kicks[0] ).to.include.keys( 'name', 'skill' );
+        expect( r.linked.kicks[0] ).to.not.have.key( 'workswith' );
         done();
       });
     });
@@ -444,7 +444,7 @@ describe('Fixture Adapter', function () {
       };
 
       fixture.exec( qe, function (e,r) {
-        expect( r[0].powers[0] ).to.have.keys( 'power_id', 'name');
+        expect( r.linked.powers[0] ).to.have.keys( 'power_id', 'name');
         done();
       });
     });
@@ -462,8 +462,8 @@ describe('Fixture Adapter', function () {
     it('whitelists fields', function (done) {
       var qe = {on:'supers',do:'find', ids:['1'], select:['handle']};
       fixture.exec( qe, function (e,r) {
-        expect( r[0] ).to.have.key('handle');
-        expect( r[0] ).to.not.have.key('id');
+        expect( r.supers[0] ).to.have.key('handle');
+        expect( r.supers[0] ).to.not.have.key('id');
         done();
       });
     });
@@ -471,8 +471,8 @@ describe('Fixture Adapter', function () {
     it('blacklists fields', function (done) {
       var qe = {on:'supers',do:'find', ids:['1'], select:['-handle']};
       fixture.exec( qe, function (e,r) {
-        expect( r[0] ).to.not.have.key('handle');
-        expect( r[0] ).to.include.keys('id','power','speed');
+        expect( r.supers[0] ).to.not.have.key('handle');
+        expect( r.supers[0] ).to.include.keys('id','power','speed');
         done();
       });
     });
@@ -486,7 +486,7 @@ describe('Fixture Adapter', function () {
       var qe = {do:'find', on:'supers', limit:2};
       fixture._store = _FIXTURE;
       fixture.exec( qe, function (e,r) {
-        expect( r ).to.have.length( 2 );
+        expect( r.supers ).to.have.length( 2 );
         done();
       });
     });
@@ -500,7 +500,7 @@ describe('Fixture Adapter', function () {
       var qe = {do:'find', on:'supers', offset:2};
       fixture._store = _FIXTURE;
       fixture.exec( qe, function (e,r) {
-        expect( r ).to.have.length( 2 );
+        expect( r.supers ).to.have.length( 2 );
         done();
       });
     });

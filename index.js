@@ -276,16 +276,6 @@
 
 
   /**
-    Helper: Cheap/nasty async checker
-    Setup a count, have your code decrement the count when passing to chkdone
-  */
-
-  function _chkdone (count, cb, res) {
-    if (count === 0) cb( null, res );
-  }
-
-
-  /**
     Helper: Grabs the lastKey from an object. Or first key if only one key.
     10x faster than Object.keys. I know. Who cares in this adapter.
     http://jsperf.com/unknown-object-key
@@ -368,7 +358,7 @@
 
     qe.body.forEach( insert.bind(this) );
 
-    if (cb) cb( null, _filter(created, qe) );
+    if (cb) _normal( qe.on, cb, _filter(created, qe) );
   };
 
 
@@ -427,7 +417,7 @@
       }
     }, this);
 
-    return cb( null, _filter(found, qe) );
+    return _normal( qe.on, cb, _filter(found, qe) );
   };
 
 
@@ -458,7 +448,7 @@
       ret.push.apply( ret, del );
     }, this);
 
-    return cb( null, _filter(ret, qe) );
+    return _normal( qe.on, cb, _filter(ret, qe) );
   };
 
 
@@ -474,7 +464,7 @@
   fixture.find = function( qe, cb ) {
     // Get initial results
     var found = _findAny.call( this, qe, true );
-    if (!found.length) return cb(null, []);
+    if (!found.length) return _normal( qe.on, cb, []);
 
     // Offset by number (only used in FIND)
     if ('number' === typeof qe.offset ) found = found.slice(qe.offset);
@@ -495,6 +485,7 @@
         var pop = qe.populate[ field ];
 
         // Ugh looking up every record is DUMB
+        var linked = {};
         found.forEach( function (rec) {
 
           var nq = pop.query || {on:field};
@@ -514,16 +505,44 @@
 
           this.find( nq, function (e,r) {
             if (e) return cb('Died: '+e);
-            rec[field] = r;
-            _chkdone( --_as, cb, found );
+
+            // Apply this field to the 'linked' property
+            if (!linked[field]) linked[field] = [];
+            linked[field] = r[nq.on];
+
+            // Check that all look ups are complete
+            if (--_as === 0) {
+              // Format `linked` populate response
+              // @see https://github.com/mekanika/adapter/issues/1
+              var ret = {};
+              ret[qe.on] = found;
+              ret.linked = linked;
+              return cb( null, ret );
+            }
           });
         }, this);
       }, this);
     }
 
     // Note `_filter_ has been applied pre-populate. DO NOT refilter.
-    else return cb( null, found );
+    else return _normal( qe.on, cb, found );
   };
+
+
+  /**
+    Helper method to normalise results to 'Adapter standard' responses
+    // @see https://github.com/mekanika/adapter/issues/1
+
+    @param {String} key The key that was being lookedup
+    @param {AdapterCallback} cb The callback
+    @param {Array} results The results of the query
+  */
+
+  function _normal( key, cb, results ) {
+    var res = {};
+    res[key] = results;
+    return cb(null, res);
+  }
 
 
   /**
