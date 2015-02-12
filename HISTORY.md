@@ -1,3 +1,25 @@
+0.4.0 - 12 February 2015
+=====
+
+Added:
+
+- Enable instantiation of new adapter from instance `fixture.new()`
+- Copy in support for ‘any’ operator from LSD rep
+
+Changed:
+
+- Preserve original Qe on create (no overwrites)
+- **Breaking** Format results to ‘Adapter standard’
+- Support populate extending an existing .match
+- `create` allows passing ‘id’ field
+
+Internal:
+
+- Switch build system to npm from Makefile
+- Switch match function to faster `while` construct
+
+
+
 0.3.2 - 9 November 2014
 =====
 
