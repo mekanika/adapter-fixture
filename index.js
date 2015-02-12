@@ -356,7 +356,9 @@
       created.push( record );
     };
 
-    qe.body.forEach( insert.bind(this) );
+    // Make a copy of the Qe (so we don't overwrite when generating ids)
+    var toCreate = JSON.parse(JSON.stringify(qe.body));
+    toCreate.forEach( insert.bind(this) );
 
     if (cb) _normal( qe.on, cb, _filter(created, qe) );
   };

@@ -1,5 +1,6 @@
 
 var expect = require('chai').expect
+  , query = require('mekanika-query')
   , fixture = require('../index');
 
 
@@ -60,6 +61,14 @@ describe('Fixture Adapter', function () {
     var qe = {do:'create', on:'bands', body:[{name:'Woo'}, {name:'Um'}]};
     fixture.exec( qe, function (e,r) {
       expect( r.bands ).to.have.length( 2 );
+      done();
+    });
+  });
+
+  it('preserves original Qe on create', function (done) {
+    var qe = {do:'create', on:'bands', body:[{name:'Yay!'}]};
+    query(fixture).on('bands').create({name:'Yay'}).done( function (e,r,q) {
+      expect( q.body[0] ).to.not.have.key('id');
       done();
     });
   });
