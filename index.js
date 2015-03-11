@@ -45,6 +45,14 @@
 
 
   /**
+    Default field name for 'identifier' column on records
+    @type String
+  */
+
+  fixture.idField = 'id';
+
+
+  /**
     General Adapter callback executed when adapter either:
 
     - Errors `(error)`
@@ -98,8 +106,8 @@
       this._store[ resource ].forEach( function (rec, i) {
         // COERCIVE equality!! Handy to paper over number vs. string typing
         /* jshint eqeqeq:false */
-        if (rec.id == id) _ret.push({index:i, record:rec});
-      });
+        if (rec[this.idField] == id) _ret.push({index:i, record:rec});
+      }, this);
     }, this);
 
     return _ret;
@@ -346,9 +354,9 @@
 
     var insert = function (record) {
       // Allow custom id to be passed, otherwise generate
-      if (!record.id) {
+      if (!record[this.idField]) {
         var id = Math.random().toString(36).substr(2);
-        record.id = id;
+        record[this.idField] = id;
       }
 
       if (!this._store[ qe.on ]) this._store[ qe.on ] = [];

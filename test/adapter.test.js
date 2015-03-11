@@ -57,6 +57,19 @@ describe('Fixture Adapter', function () {
     });
   });
 
+  it('can override field name for `id`', function (done) {
+    var qe = {do:'create', on:'bands', body:[{name:'Splergh'}]};
+    fixture.idField = '_id';
+    fixture.exec( qe, function (e,r) {
+      expect( e ).to.not.exist;
+      expect( r ).to.exist;
+      expect( r.bands[0] ).to.include.keys( '_id' );
+      // Reset field name back to default thanks
+      fixture.idField = 'id';
+      done();
+    });
+  });
+
   it('can create multiple new entries', function (done) {
     var qe = {do:'create', on:'bands', body:[{name:'Woo'}, {name:'Um'}]};
     fixture.exec( qe, function (e,r) {

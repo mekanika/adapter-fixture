@@ -16,6 +16,13 @@ adapter.exec( {do:'find',on:'users'}, fn );
 // Callback receives (error, results)
 ```
 
+Override default `.id` identifier field name using:
+
+```js
+adapter.idField = '_id';
+```
+
+
 ## Supported features
 
 All reserved Query `do` actions are supported:
