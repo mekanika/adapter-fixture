@@ -422,6 +422,9 @@
                 if (pos >= 0) dbrec[field].splice(pos, 1);
               });
               break;
+            case 'unset':
+              delete dbrec[ field ];
+              break;
           }
         }, this);
       }

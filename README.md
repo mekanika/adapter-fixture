@@ -57,9 +57,10 @@ Supports `.populate`:
 
 Supported `.update` reserved operators:
 
-- **inc** - `{update: [ {score: {inc: 5}} ]`
-- **push** - `{update: [ {tags: ['cool']} ]}`
-- **pull** - `{update: [ {tags: ['removeme'] ]}`
+- **inc** - `{update: [ {score: {inc: 5}} ]}`
+- **push** - `{update: [ {tags: {push:['cool']} ]}`
+- **pull** - `{update: [ {tags: [pull:'removeme']} ]}`
+- **unset** - `{update: [ {tags: {unset:true}} ]}`
 
 
 Supports `.limit`, `.select`, `.offset` result filters:

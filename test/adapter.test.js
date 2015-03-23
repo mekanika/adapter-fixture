@@ -214,6 +214,14 @@ describe('Fixture Adapter', function () {
         done();
       });
     });
+
+    it('unset', function (done) {
+      qe.update.push( {extra:{unset:true}} );
+      fixture.exec( qe, function (e,r) {
+        expect( r.supers[0] ).to.not.include.key('extra');
+        done();
+      });
+    });
   });
 
 
