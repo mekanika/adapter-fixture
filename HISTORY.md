@@ -1,3 +1,13 @@
+0.5.0 - 7 May 2015
+=====
+
+Added:
+
+- Override field name used for id using `.idField`
+- Add support for `unset` update operator
+
+
+
 0.4.0 - 12 February 2015
 =====
 
